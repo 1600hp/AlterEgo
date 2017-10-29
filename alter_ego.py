@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import discord
 import asyncio
@@ -19,12 +21,13 @@ def shutdown():
 
 @asyncio.coroutine
 def check_hard_commands(msg):
+    global reboot_on_shutdown
     text = msg.content
     if "$reboot" in text:
         yield from shutdown()
         reboot_on_shutdown = 1
         return True
-    elif "$shutdown in text":
+    elif "$shutdown" in text:
         yield from shutdown()
         return True
     else: return False
@@ -61,6 +64,10 @@ def on_message(msg):
 
     text = msg.content
     MARKOV.register(msg.author.id, text)
+
+    if webfetcher.rate(msg) > 0:
+        webfetcher.apply(msg)
+        return
 
     if "alter" in text.lower():
         yield from slow_send(msg.channel, 

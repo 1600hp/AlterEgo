@@ -1,9 +1,11 @@
 import pickle
+import os
 
 class DualMarkov():
     def __init__(self, ids):
         self.chains = dict()
 
+        if not os.path.exists('markov'): os.makedirs('markov')
         for id in ids:
             fname = 'markov/{}'.format(id)
             try:
