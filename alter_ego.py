@@ -8,6 +8,8 @@ import json
 
 from web_fetcher import WebFetcher
 from dual_markov import DualMarkov
+from discord_utils import slow_send
+from reminder import Reminder
 
 with open("conf.json") as conf:
     params = json.load(conf)
@@ -15,7 +17,7 @@ with open("conf.json") as conf:
 token = params["token"]
 
 client = discord.Client()
-webfetcher = WebFetcher()
+webfetcher = WebFetcher(client)
 
 reboot_on_shutdown = 0
 
@@ -36,12 +38,6 @@ def check_hard_commands(msg):
         return True
     else: return False
 
-@asyncio.coroutine
-def slow_send(dest, content=None, delay=1, tts=False, embed=None):
-    yield from client.send_typing(dest)
-    time.sleep(delay)
-    yield from client.send_message(dest, content=content, tts=tts, embed=embed)
-
 @client.event
 @asyncio.coroutine
 def on_ready():
@@ -56,7 +52,7 @@ def on_ready():
     ME = client.user
     MARKOV = DualMarkov([m.id for m in SERVER.members])
 
-    yield from slow_send(BOTSPAM, "Alter Ego, checking in! Please ignore me for now.".format(ME))
+    yield from slow_send(client, BOTSPAM, "Alter Ego, checking in! Please ignore me for now.".format(ME))
 
 @client.event
 @asyncio.coroutine
@@ -69,13 +65,10 @@ def on_message(msg):
     text = msg.content
     MARKOV.register(msg.author.id, text)
 
-    if webfetcher.rate(msg) > 0:
-        webfetcher.apply(msg)
+    rating = yield from webfetcher.rate(msg)
+    if rating > 0:
+        yield from webfetcher.apply(msg)
         return
-
-    if "alter" in text.lower():
-        yield from slow_send(msg.channel, 
-            "Hello!  I am in the process of being rebuilt.  I'll have more to say later, promise.")
 
 try:
     client.run(token)
