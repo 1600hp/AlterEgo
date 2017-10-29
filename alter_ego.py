@@ -4,11 +4,15 @@ import sys
 import discord
 import asyncio
 import time
+import json
 
 from web_fetcher import WebFetcher
 from dual_markov import DualMarkov
 
-token = "MjkwOTM0NzE3NDQ2ODgxMjgz.DNAbcA.dagPxnYSqzWANHGqINHNrx00k6k"
+with open("conf.json") as conf:
+    params = json.load(conf)
+
+token = params["token"]
 
 client = discord.Client()
 webfetcher = WebFetcher()
@@ -46,9 +50,9 @@ def on_ready():
     global BOTSPAM
     global ME
     global MARKOV
-    SERVER = client.get_server('290934730050764802')
-    GENERAL = SERVER.get_channel('290934730050764802')
-    BOTSPAM = SERVER.get_channel('290952670020239360')
+    SERVER = client.get_server(params["server"])
+    GENERAL = SERVER.get_channel(params["general"])
+    BOTSPAM = SERVER.get_channel(params["botspam"])
     ME = client.user
     MARKOV = DualMarkov([m.id for m in SERVER.members])
 
