@@ -6,7 +6,7 @@ class Interpretation:
 
     @asyncio.coroutine
     @abstractmethod
-    def rate(self, msg):
+    def rate(self, msg, **kwargs):
         pass
 
     @asyncio.coroutine

@@ -12,24 +12,37 @@ from discord_utils import slow_send
 
 class MTGFetcher(Interpretation):
     def __init__(self, client):
+        self.cached_target = None
+        self.cached = None
         self.client = client
-        pass
+
+    def query(self, target):
+        if target == self.cached_target:
+            body = self.cached
+        else:
+            buffer = BytesIO()
+            c = pycurl.Curl()
+            c.setopt(c.URL, 'https://api.deckbrew.com/mtg/cards?name={}'.format(parse.quote(target)))
+            c.setopt(c.WRITEDATA, buffer)
+            c.perform()
+            c.close()
+            body = buffer.getvalue().decode('iso-8859-1')
+        self.cached_target = target
+        self.cached = body
+        return body
 
     @asyncio.coroutine
-    def rate(self, msg):
-        return 1
+    def rate(self, msg, target=None, **kwargs):
+        if target == None: return 0
+        body = query(target)
+        return 0 if (not body or len(body) == 0) else 1
 
     @asyncio.coroutine
-    def apply(self, msg, **kwargs):
-        target = kwargs["target"]
-        buffer = BytesIO()
-        c = pycurl.Curl()
-        c.setopt(c.URL, 'https://api.deckbrew.com/mtg/cards?name={}'.format(parse.quote(target)))
-        c.setopt(c.WRITEDATA, buffer)
-        c.perform()
-        c.close()
+    def apply(self, msg, target=None, **kwargs):
+        if target == None: return 0
 
-        body = buffer.getvalue().decode('iso-8859-1')
+        body = self.query(target)
+
         if not body or len(body) == 0: return
         body = json.loads(body)
         if len(body) == 0: return
@@ -78,7 +91,7 @@ class WebFetcher(Interpretation):
         pass
 
     @asyncio.coroutine
-    def rate(self, msg):
+    def rate(self, msg, **kwargs):
         if re.search(self.bracket_pattern, msg.content):
             return 1
         else:

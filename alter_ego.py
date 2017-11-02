@@ -8,7 +8,7 @@ import json
 
 from web_fetcher import WebFetcher
 from dual_markov import DualMarkov
-from discord_utils import slow_send
+from discord_utils import slow_send, tokenize
 from reminder import Reminder
 
 with open("conf.json") as conf:
@@ -18,6 +18,9 @@ token = params["token"]
 
 client = discord.Client()
 webfetcher = WebFetcher(client)
+reminder = Reminder(client)
+
+interpreters = [webfetcher, reminder]
 
 reboot_on_shutdown = 0
 
@@ -65,10 +68,14 @@ def on_message(msg):
     text = msg.content
     MARKOV.register(msg.author.id, text)
 
-    rating = yield from webfetcher.rate(msg)
-    if rating > 0:
-        yield from webfetcher.apply(msg)
-        return
+    tokens = tokenize(text)
+
+    rates = []
+    for interp in interpreters:
+        rate = yield from interp.rate(msg, tokens=tokens)
+        rates.append(rate)
+    interp = interpreters[rates.index(max(rates))]
+    yield from interp.apply(msg, tokens=tokens, loop=client.loop)
 
 try:
     client.run(token)
