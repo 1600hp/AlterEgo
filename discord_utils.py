@@ -26,7 +26,7 @@ def tokenize(text):
     current = ""
 
     for char in text:
-        if char in string.punctuation and len(current) == 0:
+        if char in string.punctuation and char != '@' and len(current) == 0:
             tokens.append(char)
         elif char in string.whitespace:
             tokens, current = _finish_token(tokens, current)

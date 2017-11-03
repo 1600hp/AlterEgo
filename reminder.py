@@ -1,5 +1,6 @@
 import discord
 import asyncio
+from time import localtime, strftime
 
 from interpretation import Interpretation
 from discord_utils import slow_send
@@ -33,7 +34,11 @@ class Reminder(Interpretation):
         self.client = client
         
     @asyncio.coroutine
-    def rate(self, msg, tokens=None, **kwargs):
+    def rate(self, msg, tokens=None, me=None, **kwargs):
+        if not me:
+            return 0
+        if not me.mentioned_in(msg):
+            return 0
         return 1 if ("reminder" in tokens or "remind" in tokens) else 0
 
     @asyncio.coroutine
@@ -80,11 +85,33 @@ class Reminder(Interpretation):
 
         time_output = []
         if hours:
-            time_output.append("{} hours".format(hours))
+            time_output.append("{} hour".format(hours))
+            if hours != 1:
+                time_output[-1] += "s"
         if minutes:
-            time_output.append("{} minutes".format(minutes))
+            time_output.append("{} minute".format(minutes))
+            if minutes != 1:
+                time_output[-1] += "s"
         if seconds:
-            time_output.append("{} seconds".format(seconds))
+            time_output.append("{} second".format(seconds))
+            if seconds != 1:
+                time_output[-1] += "s"
 
+        send_time = localtime()
         yield from slow_send(self.client, msg.channel, prefix + ", ".join(time_output) + ".")
-        
+        yield from asyncio.sleep(seconds + minutes * 60 + hours * 360)
+        yield from self.reminder_callback(" ".join(reminder), msg.author, send_time)
+
+    @asyncio.coroutine
+    def reminder_callback(self, reminder, target, send_time):
+        if reminder:
+            reminder = " " + reminder
+
+        now = localtime()
+        same_day = (now.tm_year == send_time.tm_year) \
+                and (now.tm_mon == send_time.tm_mon) \
+                and (now.tm_mday == send_time.tm_mday)
+        time_format = "%I:%M %p" if same_day else "%A %I:%M %p"
+        content = ["This is a reminder", reminder, ". [Set at ", strftime(time_format, send_time), "]"]
+
+        yield from slow_send(self.client, target, "".join(content))

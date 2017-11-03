@@ -72,7 +72,7 @@ def on_message(msg):
 
     rates = []
     for interp in interpreters:
-        rate = yield from interp.rate(msg, tokens=tokens)
+        rate = yield from interp.rate(msg, tokens=tokens, me=ME)
         rates.append(rate)
     interp = interpreters[rates.index(max(rates))]
     yield from interp.apply(msg, tokens=tokens, loop=client.loop)
