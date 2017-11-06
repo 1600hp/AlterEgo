@@ -10,6 +10,7 @@ from web_fetcher import WebFetcher
 from dual_markov import DualMarkov
 from discord_utils import slow_send, tokenize
 from reminder import Reminder
+from calendar_manager import CalendarManager
 
 with open("conf.json") as conf:
     params = json.load(conf)
@@ -19,8 +20,9 @@ token = params["token"]
 client = discord.Client()
 webfetcher = WebFetcher(client)
 reminder = Reminder(client)
+cal_manager = CalendarManager(client, params["calendar_path"])
 
-interpreters = [webfetcher, reminder]
+interpreters = [webfetcher, reminder, cal_manager]
 
 reboot_on_shutdown = 0
 
@@ -55,6 +57,7 @@ def on_ready():
     ME = client.user
     MARKOV = DualMarkov([m.id for m in SERVER.members])
 
+    cal_manager.calendar.save_file()
     yield from slow_send(client, BOTSPAM, "Alter Ego, checking in! Please ignore me for now.".format(ME))
 
 @client.event
