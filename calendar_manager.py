@@ -4,6 +4,7 @@ import asyncio
 from interpretation import Interpretation
 from discord_utils import slow_send
 from croissant.calendar import Calendar
+from event_planner import EventPlanner
 
 class CalendarManager(Interpretation):
     def __init__(self, client, fname):
@@ -26,3 +27,4 @@ class CalendarManager(Interpretation):
     @asyncio.coroutine
     def apply(self, msg, tokens=None, **kwargs):
         yield from slow_send(self.client, msg.channel, "Sure, I'll pm you for the details.")
+        return EventPlanner(self.client, msg.author, self.calendar)

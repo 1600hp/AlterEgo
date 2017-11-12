@@ -23,6 +23,7 @@ reminder = Reminder(client)
 cal_manager = CalendarManager(client, params["calendar_path"])
 
 interpreters = [webfetcher, reminder, cal_manager]
+conversations = []
 
 reboot_on_shutdown = 0
 
@@ -65,20 +66,36 @@ def on_ready():
 def on_message(msg):
     if msg.author == ME: return  # Alter Ego should not respond to her own messages
 
+    # Check non-linguistic commands
     caught = yield from check_hard_commands(msg)
     if caught: return
 
+    # Register the sentence with the users Markov session
     text = msg.content
     MARKOV.register(msg.author.id, text)
 
     tokens = tokenize(text)
 
+    # Check ongoing conversations
+    matches = []
+    for conv in conversations:
+        match = yield from conv.expected_next(msg, tokens=tokens, me=ME)
+        if match:
+            conv.apply(msg, tokens=tokens, me=ME)
+            return
+
+    # Check linguistic commands
     rates = []
     for interp in interpreters:
         rate = yield from interp.rate(msg, tokens=tokens, me=ME)
         rates.append(rate)
-    interp = interpreters[rates.index(max(rates))]
-    yield from interp.apply(msg, tokens=tokens, loop=client.loop)
+    
+    # Apply match
+    if max(rates) > 0:
+        interp = interpreters[rates.index(max(rates))]
+        new_conv = yield from interp.apply(msg, tokens=tokens, loop=client.loop)
+        if new_conv:
+            conversations.append(new_conv)
 
 try:
     client.run(token)
