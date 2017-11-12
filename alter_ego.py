@@ -47,19 +47,12 @@ def check_hard_commands(msg):
 @client.event
 @asyncio.coroutine
 def on_ready():
-    global SERVER
-    global GENERAL
-    global BOTSPAM
     global ME
     global MARKOV
-    SERVER = client.get_server(params["server"])
-    GENERAL = SERVER.get_channel(params["general"])
-    BOTSPAM = SERVER.get_channel(params["botspam"])
     ME = client.user
-    MARKOV = DualMarkov([m.id for m in SERVER.members])
+    MARKOV = DualMarkov([m.id for m in reduce(lambda x, y: x + y.members, client.servers, [])])
 
     cal_manager.calendar.save_file()
-    yield from slow_send(client, BOTSPAM, "Alter Ego, checking in! Please ignore me for now.".format(ME))
 
 @client.event
 @asyncio.coroutine
@@ -95,6 +88,7 @@ def on_message(msg):
         interp = interpreters[rates.index(max(rates))]
         new_conv = yield from interp.apply(msg, tokens=tokens, loop=client.loop)
         if new_conv:
+            global conversations
             conversations.append(new_conv)
 
 try:
