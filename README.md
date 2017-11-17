@@ -1,46 +1,47 @@
-# AlterEgo - A Discord Bot by 1600Horsepower
+# AlterEgo
+## A Discord Bot by 1600Horsepower
 
-1. Features
+### Features
 
- a. Direct Commands
+##### Direct Commands
 
-    Certain commands will be accepted by Alter Ego when written by anyone within earshot.  Currently these are:
+Certain commands will be accepted by Alter Ego when written by anyone within earshot.  Currently these are:
 
-    - "$reboot": Restarts Alter Ego (Assuming it is currently running)
-    - "$shutdown": Shuts down Alter Ego
+"$reboot": Restarts Alter Ego (Assuming it is currently running)
 
-    Both of these commands induce a clean exit.
+"$shutdown": Shuts down Alter Ego
 
- b. Web Fetcher
+Both of these commands induce a clean exit.
 
-    This pulls information from various internet sources when prompted with a word of phrase bracketed in [[]]. Currently, the only implemented endpoint fetches Magic: the Gathering cards.
+##### Web Fetcher
 
- c. Reminders
+This pulls information from various internet sources when prompted with a word of phrase bracketed in [[]]. Currently, the only implemented endpoint fetches Magic: the Gathering cards.
 
-    When prompted (and tagged), Alter Ego will remind you of an event.  The syntax is relatively flexible.  Examples of prompts that work:
+##### Reminders
 
-    - "@AlterEgo, can you remind me "that I need to buy eggs" in six hours?"
-    - "Can I get a reminder in a minute that I really need to take a shower, @AlterEgo?"
-    - "Please remind me in 7 hours, 6 minutes, and 10 seconds to stop being so precise, @AlterEgo."
+When prompted (and tagged), Alter Ego will remind you of an event.  The syntax is relatively flexible.  Examples of prompts that work:
 
-2. In Progress Features
+###### "@AlterEgo, can you remind me "that I need to buy eggs" in six hours?"
+###### "Can I get a reminder in a minute that I really need to take a shower, @AlterEgo?"
+###### "Please remind me in 7 hours, 6 minutes, and 10 seconds to stop being so precise, @AlterEgo."
 
- a. Markov Chaining
+### In Progress Features
 
-    Not sure what I'm gonna do with this, but it's fun to have.
+##### Markov Chaining
 
- b. Calendar Management
+Not sure what I'm gonna do with this, but it's fun to have.
 
-    The syntax and use cases for this are very much in progress.
+##### Calendar Management
 
- c. Instagram Account
+The syntax and use cases for this are very much in progress.
 
-    Yeah.
+##### Instagram Account
 
-3. Requirements
+Yeah.
 
-   Alter Ego runs on Python 3.4+.  The discord.py library is essential, for obvious reasons.  It can be found here:
+### Requirements
 
-   https://github.com/Rapptz/discord.py
+Alter Ego runs on Python 3.4+.  The discord.py library is essential, for obvious reasons.  It can be found here:
 
-
+https://github.com/Rapptz/discord.py
+                           
