@@ -5,6 +5,7 @@ import discord
 import asyncio
 import time
 import json
+from functools import reduce
 
 from web_fetcher import WebFetcher
 from dual_markov import DualMarkov
@@ -50,7 +51,7 @@ def on_ready():
     global ME
     global MARKOV
     ME = client.user
-    MARKOV = DualMarkov([m.id for m in reduce(lambda x, y: x + y.members, client.servers, [])])
+    MARKOV = DualMarkov([m.id for m in reduce(lambda x, y: x + list(y.members), client.servers, [])])
 
     cal_manager.calendar.save_file()
 
@@ -70,11 +71,14 @@ def on_message(msg):
     tokens = tokenize(text)
 
     # Check ongoing conversations
+    global conversations
     matches = []
     for conv in conversations:
         match = yield from conv.expected_next(msg, tokens=tokens, me=ME)
         if match:
-            conv.apply(msg, tokens=tokens, me=ME)
+            result = yield from conv.apply(msg, tokens=tokens, me=ME)
+            if result:
+                conversations.remove(conv)
             return
 
     # Check linguistic commands
@@ -88,7 +92,6 @@ def on_message(msg):
         interp = interpreters[rates.index(max(rates))]
         new_conv = yield from interp.apply(msg, tokens=tokens, loop=client.loop)
         if new_conv:
-            global conversations
             conversations.append(new_conv)
 
 try:

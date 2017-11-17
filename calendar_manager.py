@@ -27,4 +27,5 @@ class CalendarManager(Interpretation):
     @asyncio.coroutine
     def apply(self, msg, tokens=None, **kwargs):
         yield from slow_send(self.client, msg.channel, "Sure, I'll pm you for the details.")
+        yield from slow_send(self.client, msg.author, "What would you like to name your new event?")
         return EventPlanner(self.client, msg.author, self.calendar)

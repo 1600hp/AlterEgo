@@ -2,6 +2,7 @@ import json
 import os
 
 from datetime import date, time
+from functools import reduce
 
 class Calendar:
     calendar = []
@@ -32,7 +33,7 @@ class Calendar:
             json.dump(self.calendar, fp)
 
     def get_next_id(self):
-        return reduce(lambda x, y: max(x, y), self.calendar) + 1
+        return reduce(lambda x, y: max(x, y), self.calendar, 0) + 1
 
     def add_event(self,
             name, 
@@ -41,8 +42,8 @@ class Calendar:
             repeat_indices=[],
             start_date="",
             end_date="",
-            start_time=time(),
-            end_time=time(),
+            start_time="",
+            end_time="",
             location="",
             attendees=[]):
         next_id = self.get_next_id()
@@ -67,8 +68,8 @@ class Calendar:
     def day_in_range(self, event, date):
         event_start = event["start_date"].split("/")
         event_end = event["end_date"].split("/")
-        event_start = date(*event_start)
-        event_end = date(*event_start)
+        event_start = date(event_start[2], event_end[0], event_end[1])
+        event_end = date(event_end[2], event_end[0], event_end[1])
         return event_start <= date and date <= event_end
 
     def events_in_range(self, date):
